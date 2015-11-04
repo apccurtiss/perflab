@@ -16,13 +16,15 @@ FILTERS = gauss.filter vline.filter hline.filter emboss.filter
 IMAGES = boats.bmp blocks-small.bmp
 TRIALS = 1 2 3 4
 
-test:
+test: filter
 	-./Judge -p filter -n 2 -i blocks-small.bmp
+	-python compare.py
 perf:
 	-scp -q * alcu5535@perf-02.cs.colorado.edu:perflab
 judge: filter
 	#-./Judge -p ./filter -i boats.bmp
 	-./Judge -p ./filter -i blocks-small.bmp
+	-python compare.py
 clean:
 	-rm filter
 	-rm filtered-*.bmp
