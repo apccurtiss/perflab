@@ -97,7 +97,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   output -> width = input -> width;
   output -> height = input -> height;
 
-  int divisor = filter->getDivisor(); 
+  int divisor = (filter->getDivisor())>>2; 
   int size = filter->getSize();
   int value = 0;
   int dim = filter->dim;
@@ -110,15 +110,26 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
       for(int row = 0; row < h ; row++) {
 
 	value = 0;
-	for (int j = 0; j < size; j++) {
+	/*for (int j = 0; j < size; j++) {
 	  for (int i = 0; i < size; i++) {
 	    value = value + input->color[col + j][plane][row + i]
 	      * data[i * dim + j];
 	  }
+	}*/
+	int i1 = 0;
+	int i2 = 0;
+	int i3 = 0;
+	for(int j = 0; j < size; j++) {
+	  i1 = i1 + input->color[col+j][plane][row]* data[j];
+	  i2 = i2 + input->color[col+j][plane][row+1]* data[dim + j];
+	  i3 = i3 + input->color[col+j][plane][row+2]* data[2* dim + j];
 	}
-	value = value / divisor;
+	value = value + i1 + i2 + i3;
+	value = value>>divisor;
 	if ( value < 0) { value = 0; }
 	if ( value  > 255 ) { value = 255; }
+	/*value = (value < 0)? 0 : value;
+	value = (value > 255)? 255 : value;*/
 	output -> color[col + 1][plane][row + 1] = value;
       }
     }

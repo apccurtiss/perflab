@@ -13,8 +13,9 @@ filter: FilterMain.cpp Filter.cpp cs1300bmp.cc
 ## Parameters for the test run
 ##
 FILTERS = gauss.filter vline.filter hline.filter emboss.filter
-IMAGES = boats.bmp blocks-small.bmp
-TRIALS = 1 2 3 4
+#IMAGES = boats.bmp blocks-small.bmp
+IMAGES = blocks-small.bmp
+TRIALS = 1 2 
 
 test: filter
 	-./Judge -p filter -n 2 -i blocks-small.bmp
