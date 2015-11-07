@@ -119,17 +119,15 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	
 	int i1 = input->color[col][plane][row]* data[0];
 	int i2 = input->color[col][plane][row+1]* data[3];
-	int i3 = input->color[col][plane][row+2]* data[6];
+	int i3 = input->color[col][plane][row+2]* data[6];	
 	
-	int col_p_o = col +1;
-	i1 = i1 + input->color[col_p_o][plane][row]* data[1];
-        i2 = i2 + input->color[col_p_o][plane][row+1]* data[4];
-        i3 = i3 + input->color[col_p_o][plane][row+2]* data[7];
+	i1 = i1 + input->color[col+1][plane][row]* data[1];
+        i2 = i2 + input->color[col+1][plane][row+1]* data[4];
+        i3 = i3 + input->color[col+1][plane][row+2]* data[7];
 
-	int col_p_t = col +2;
-	i1 = i1 + input->color[col_p_t][plane][row]* data[2];
-        i2 = i2 + input->color[col_p_t][plane][row+1]* data[5];
-        i3 = i3 + input->color[col_p_t][plane][row+2]* data[8];
+	i1 = i1 + input->color[col+2][plane][row]* data[2];
+        i2 = i2 + input->color[col+2][plane][row+1]* data[5];
+        i3 = i3 + input->color[col+2][plane][row+2]* data[8];
 
 	value = i1 + i2 + i3;
 	value = value>>divisor;
@@ -140,7 +138,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	value = (value < 0)? 0 : value;
 	value = (value > 255)? 255 : value;
 	//*/
-	output -> color[col_p_o][plane][row + 1] = value;
+	output -> color[col+1][plane][row + 1] = value;
       }
     }
   }
