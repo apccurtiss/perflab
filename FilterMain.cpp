@@ -115,11 +115,28 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   int w = input->width - 2;
   int h = input->height - 2;
   
+  int block_size = 64;
 
-  for(int col = 0; col < w; col++) {
+  for(int col = 0; col < w; col+=block_size) {
     for(int plane = 0; plane < 3; plane++) {
-        for(int row = 0; row < h ; row ++) {
+        for(int row = 0; row < h ; row +=block_size) {
 
+       	   for(int colc = col; colc < block_size; colc++) {
+	      for(int rowc = row; rowc < block_size; rowc++)  {
+		int i1 = input->color[col][plane][row]* data[0];
+	        int i2 = input->color[col][plane][row+1]* data[3];
+	        int i3 = input->color[col][plane][row+2]* data[6];      
+        
+	        i1 = i1 + input->color[col+1][plane][row]* data[1];
+	        i2 = i2 + input->color[col+1][plane][row+1]* data[4];
+	        i3 = i3 + input->color[col+1][plane][row+2]* data[7];
+
+	        i1 = i1 + input->color[col+2][plane][row]* data[2];
+	        i2 = i2 + input->color[col+2][plane][row+1]* data[5];
+	        i3 = i3 + input->color[col+2][plane][row+2]* data[8];
+
+	      }
+	   }
 	//value = 0;
 	/*for (int j = 0; j < size; j++) {
 	  for (int i = 0; i < size; i++) {
@@ -141,6 +158,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
         i2 = i2 + input->color[col+2][plane][row+1]* data[5];
         i3 = i3 + input->color[col+2][plane][row+2]* data[8];
 	*/
+/*	int i1 = input->color[col][plane][row]* data[0];
 	int i1 = input->color[col][plane][row]* data[0];
 	int i2 = input->color[col+1][plane][row]* data[1];
 	int a = i1;
@@ -159,8 +177,8 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	i1 = input->color[col+2][plane][row+2]* data[8];
 	b += i4;
 	a += i1;
-	value = a + b;
-	if(divisor == 4) value = value>>4;
+	value = a + b;*/
+	value = value>>divisor;
 	/*
 	if ( value < 0) { value = 0; }
 	*/
