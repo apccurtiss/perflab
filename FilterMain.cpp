@@ -117,9 +117,9 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   int col;
   int row;
   
-   int block_size = 8;
+   int block_size = 4;
    for(col = 0; col < w; col += block_size) {
-      for(row = 0; row < h ; row += block_size) {
+     for(row = 0; row < h ; row += block_size) {
 	for(int plane = 0; plane < 3; plane++) {
        	   for(int colc = col; colc <col+block_size; colc++) {
 	      for(int rowc = row; rowc <row+block_size; rowc++)  {
@@ -139,12 +139,12 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	value = value + i1 + i2 + i3;
 	value = value>>divisor;
 
-	if ( value < 0) { value = 0; }
+	//if ( value < 0) { value = 0; }
 
-	if ( value  > 255 ) { value = 255; }
-	//value = (value < 0)? 0 : value;
+	//if ( value  > 255 ) { value = 255; }
+	value = (value < 0)? 0 : value;
 //	value = value & ~(value >> 0x1f);
-	//value = (value > 255)? 255 : value;
+	value = (value > 255)? 255 : value;
 	//*/
 	output -> color[colc+1][plane][rowc + 1] = value;
 	 }	
