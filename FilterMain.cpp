@@ -121,8 +121,8 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
     for(int plane = 0; plane < 3; plane++) {
         for(int row = 0; row < h ; row +=block_size) {
 
-       	   for(int colc = col; colc < block_size; colc++) {
-	      for(int rowc = row; rowc < block_size; rowc++)  {
+       	   for(int colc = col; colc <col+block_size; colc++) {
+	      for(int rowc = row; rowc <row+block_size; rowc++)  {
 		int i1 = input->color[col][plane][row]* data[0];
 	        int i2 = input->color[col][plane][row+1]* data[3];
 	        int i3 = input->color[col][plane][row+2]* data[6];      
