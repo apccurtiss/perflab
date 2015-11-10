@@ -101,8 +101,8 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   int size = filter->getSize();
   int value = 0;
   int dim = filter->dim;
-  //int* data = filter->data;
-  
+  int* data = filter->data;
+ /*
   static int data[9] = {filter->data[0],
 		 filter->data[1],
 		 filter->data[3],
@@ -111,19 +111,18 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 		 filter->data[6],
 		 filter->data[7],
 		 filter->data[8]};
- 
+ */
   int w = input->width - 2;
   int h = input->height - 2;
   
-  int block_size = 1;
-
-  for(int colc = 0; colc < w; colc ++) {
-      for(int rowc = 0; rowc < h ; rowc ++) {
+   int block_size = 16;
+   for(int col = 0; col < w; col += block_size) {
+      for(int row = 0; row < h ; row += block_size) {
 	for(int plane = 0; plane < 3; plane++) {
-       	  // for(int colc = col; colc <col+block_size; colc++) {
-	    //  for(int rowc = row; rowc <row+block_size; rowc++)  {
+       	   for(int colc = col; colc <col+block_size; colc++) {
+	      for(int rowc = row; rowc <row+block_size; rowc++)  {
 		value = 0;
-		int i1 = input->color[colc][plane][rowc  ]* data[0];
+		int i1 = input->color[colc][plane][rowc ]* data[0];
 	        int i2 = input->color[colc][plane][rowc+1]* data[3];
 	        int i3 = input->color[colc][plane][rowc+2]* data[6];      
         
@@ -131,23 +130,23 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	        i2 = i2 + input->color[colc+1][plane][rowc+1]* data[4];
 	        i3 = i3 + input->color[colc+1][plane][rowc+2]* data[7];
 
-	        i1 = i1 + input->color[colc+2][plane][rowc  ]* data[2];
+	        i1 = i1 + input->color[colc+2][plane][rowc ]* data[2];
 	        i2 = i2 + input->color[colc+2][plane][rowc+1]* data[5];
 	        i3 = i3 + input->color[colc+2][plane][rowc+2]* data[8];
 
-	value = i1 + i2 + i3;
+	value = value + i1 + i2 + i3;
 	value = value>>divisor;
-	/*
+
 	if ( value < 0) { value = 0; }
-	*/
+
 	if ( value  > 255 ) { value = 255; }
 	//value = (value < 0)? 0 : value;
-	value = value & ~(value >> 0x1f);
+//	value = value & ~(value >> 0x1f);
 	//value = (value > 255)? 255 : value;
 	//*/
 	output -> color[colc+1][plane][rowc + 1] = value;
-//	 }	
-//	}
+	 }	
+	}
       }
     }
   }
