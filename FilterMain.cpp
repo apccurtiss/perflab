@@ -123,17 +123,17 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
        	   for(int colc = col; colc <col+block_size; colc++) {
 	      for(int rowc = row; rowc <row+block_size; rowc++)  {
 		value = 0;
-		int i1 = input->color[col][plane][row]* data[0];
-	        int i2 = input->color[col][plane][row+1]* data[3];
-	        int i3 = input->color[col][plane][row+2]* data[6];      
+		int i1 = input->color[colc][plane][rowc]* data[0];
+	        int i2 = input->color[colc][plane][rowc+1]* data[3];
+	        int i3 = input->color[colc][plane][rowc+2]* data[6];      
         
-	        i1 = i1 + input->color[col+1][plane][row]* data[1];
-	        i2 = i2 + input->color[col+1][plane][row+1]* data[4];
-	        i3 = i3 + input->color[col+1][plane][row+2]* data[7];
+	        i1 = i1 + input->color[colc+1][plane][rowc]* data[1];
+	        i2 = i2 + input->color[colc+1][plane][rowc+1]* data[4];
+	        i3 = i3 + input->color[colc+1][plane][rowc+2]* data[7];
 
-	        i1 = i1 + input->color[col+2][plane][row]* data[2];
-	        i2 = i2 + input->color[col+2][plane][row+1]* data[5];
-	        i3 = i3 + input->color[col+2][plane][row+2]* data[8];
+	        i1 = i1 + input->color[colc+2][plane][rowc]* data[2];
+	        i2 = i2 + input->color[colc+2][plane][rowc+1]* data[5];
+	        i3 = i3 + input->color[colc+2][plane][rowc+2]* data[8];
 
 	value = i1 + i2 + i3;
 	value = value>>divisor;
