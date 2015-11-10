@@ -114,10 +114,12 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
  */
   int w = input->width - 2;
   int h = input->height - 2;
+  int col;
+  int row;
   
-   int block_size = 16;
-   for(int col = 0; col < w; col += block_size) {
-      for(int row = 0; row < h ; row += block_size) {
+   int block_size = 8;
+   for(col = 0; col < w; col += block_size) {
+      for(row = 0; row < h ; row += block_size) {
 	for(int plane = 0; plane < 3; plane++) {
        	   for(int colc = col; colc <col+block_size; colc++) {
 	      for(int rowc = row; rowc <row+block_size; rowc++)  {
@@ -149,6 +151,37 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	}
       }
     }
+  }
+
+  for(int coll = col; coll < w; coll ++) {
+    for(int rowl = row; rowl < h ; rowl ++) {
+      for(int plane = 0; plane < 3; plane++) {
+        value = 0;
+        int i1 = input->color[coll][plane][rowl ]* data[0];
+        int i2 = input->color[coll][plane][rowl+1]* data[3];
+        int i3 = input->color[coll][plane][rowl+2]* data[6];
+
+        i1 = i1 + input->color[coll+1][plane][rowl  ]* data[1];
+        i2 = i2 + input->color[coll+1][plane][rowl+1]* data[4];
+        i3 = i3 + input->color[coll+1][plane][rowl+2]* data[7];
+        i1 = i1 + input->color[coll+2][plane][rowl ]* data[2];
+        i2 = i2 + input->color[coll+2][plane][rowl+1]* data[5];
+        i3 = i3 + input->color[coll+2][plane][rowl+2]* data[8];
+
+        value = value + i1 + i2 + i3;
+        value = value>>divisor;
+
+        if ( value < 0) { value = 0; }
+
+        if ( value  > 255 ) { value = 255; }
+        //value = (value < 0)? 0 : value;
+//      value = value & ~(value >> 0x1f);
+        //value = (value > 255)? 255 : value;
+        //*/
+        output -> color[coll+1][plane][rowl + 1] = value;
+
+        }
+      }
   }
 
   cycStop = rdtscll();
