@@ -135,8 +135,6 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	        i2 = i2 + input->color[col+2][plane][row+1]* data[5];
 	        i3 = i3 + input->color[col+2][plane][row+2]* data[8];
 
-	      }
-	   }
 	//value = 0;
 	/*for (int j = 0; j < size; j++) {
 	  for (int i = 0; i < size; i++) {
@@ -178,6 +176,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	b += i4;
 	a += i1;
 	value = a + b;*/
+	value = i1 + i2 + i3;
 	value = value>>divisor;
 	/*
 	if ( value < 0) { value = 0; }
@@ -188,6 +187,8 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 	//value = (value > 255)? 255 : value;
 	//*/
 	output -> color[col+1][plane][row + 1] = value;
+	  }
+	}
       }
     }
   }
