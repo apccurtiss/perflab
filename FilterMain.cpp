@@ -101,9 +101,9 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   int size = filter->getSize();
   int value = 0;
   int dim = filter->dim;
-  int* data = filter->data;
-  /*
-  int data[9] = {filter->data[0],
+  //int* data = filter->data;
+  
+  static int data[9] = {filter->data[0],
 		 filter->data[1],
 		 filter->data[3],
 		 filter->data[4],
@@ -111,7 +111,7 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 		 filter->data[6],
 		 filter->data[7],
 		 filter->data[8]};
-  */
+ 
   int w = input->width - 2;
   int h = input->height - 2;
   
@@ -120,9 +120,9 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   for(int col = 0; col < w; col+=block_size) {
     for(int plane = 0; plane < 3; plane++) {
         for(int row = 0; row < h ; row +=block_size) {
-
        	   for(int colc = col; colc <col+block_size; colc++) {
 	      for(int rowc = row; rowc <row+block_size; rowc++)  {
+		value = 0;
 		int i1 = input->color[col][plane][row]* data[0];
 	        int i2 = input->color[col][plane][row+1]* data[3];
 	        int i3 = input->color[col][plane][row+2]* data[6];      
