@@ -12,7 +12,7 @@ using namespace std;
 // Forward declare the functions
 //
 Filter * readFilter(string filename);
-double applyFilter(Filter *filter, cs1300bmp *input, cs1300bmp *output);
+double applyFilter(Filter *filter, cs1300bmp *input, cs1300bmp *output, string filtername);
 
 int
 main(int argc, char **argv)
@@ -52,7 +52,7 @@ main(int argc, char **argv)
     int ok = cs1300bmp_readfile( (char *) inputFilename.c_str(), input);
 
     if ( ok ) {
-      double sample = applyFilter(filter, input, output);
+      double sample = applyFilter(filter, input, output, filtername);
       sum += sample;
       samples++;
       cs1300bmp_writefile((char *) outputFilename.c_str(), output);
@@ -87,7 +87,7 @@ readFilter(string filename)
 
 
 double
-applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
+applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output, string filtername)
 {
 
   long long cycStart, cycStop;
@@ -116,72 +116,114 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
   int h = input->height - 2;
   int col;
   int row;
+  int filtercode;
   
-   int block_size = 4;
-   for(col = 0; col < w; col += block_size) {
-     for(row = 0; row < h ; row += block_size) {
-	for(int plane = 0; plane < 3; plane++) {
-       	   for(int colc = col; colc <col+block_size; colc++) {
-	      for(int rowc = row; rowc <row+block_size; rowc++)  {
-		value = 0;
-		int i1 = input->color[colc][plane][rowc ]* data[0];
-	        int i2 = input->color[colc][plane][rowc+1]* data[3];
-	        int i3 = input->color[colc][plane][rowc+2]* data[6];      
-        
-	        i1 = i1 + input->color[colc+1][plane][rowc  ]* data[1];
-	        i2 = i2 + input->color[colc+1][plane][rowc+1]* data[4];
-	        i3 = i3 + input->color[colc+1][plane][rowc+2]* data[7];
+  if(filtername == "hline") filtercode = 0;
+  else if(filtername == "motionblur") filtercode = 1;
+  else if(filtername == "raised") filtercode = 2;
+  else if(filtername == "emboss") filtercode = 3;
+  else filtercode = 4;
 
-	        i1 = i1 + input->color[colc+2][plane][rowc ]* data[2];
-	        i2 = i2 + input->color[colc+2][plane][rowc+1]* data[5];
-	        i3 = i3 + input->color[colc+2][plane][rowc+2]* data[8];
+  switch(filtercode) {
+   case 0:
+     for(col = 0; col < w; col++) {
+     for(row = 0; row < h ; row ++) {
+        for(int plane = 0; plane < 3; plane++)  {
+                value = 0;
+                int i1 = input->color[col][plane][row ]* data[0];
+                int i2 = 0;
+                int i3 = input->color[col][plane][row+2];
+                i1 = i1 + input->color[col+1][plane][row  ]* data[1];
+                i3 = i3 + input->color[col+1][plane][row+2]* data[7];
+                i1 = i1 + input->color[col+2][plane][row ]* data[2];
+                i3 = i3 + input->color[col+2][plane][row+2];
+                value = value + i1 + i2 + i3;
+                value = value>>divisor;
+                value = (value < 0)? 0 : value;
+                value = (value > 255)? 255 : value;
+                output -> color[col+1][plane][row + 1] = value;
+         }
+       }
+     }
+	break;
+   case 1:
+     for(col = 0; col < w; col++) {
+     for(row = 0; row < h ; row ++) {
+        for(int plane = 0; plane < 3; plane++)  {
+                value = input->color[col][plane][row+1] + input->color[col][plane][row+2];
+                value = value>>divisor;
+                value = (value < 0)? 0 : value;
+                value = (value > 255)? 255 : value;
+                output -> color[col+1][plane][row + 1] = value;
+         }
+       }
+     }
 
-	value = value + i1 + i2 + i3;
-	value = value>>divisor;
+	break;
+   case 2:
+     for(col = 0; col < w; col++) {
+     for(row = 0; row < h ; row ++) {
+        for(int plane = 0; plane < 3; plane++)  {
+                int i3 = input->color[col][plane][row+2];            
+                int i2 = i2 + input->color[col+1][plane][row+1]* data[4];
+                int i1 = i1 + input->color[col+2][plane][row ]* data[2];               
+                value = i1 + i2 + i3;
+                value = value>>divisor;
+                value = (value < 0)? 0 : value;
+                value = (value > 255)? 255 : value;
+                output -> color[col+1][plane][row + 1] = value;
+         }
+       }
+     }
 
-	//if ( value < 0) { value = 0; }
+	break;
+   case 3:
+     for(col = 0; col < w; col++) {
+     for(row = 0; row < h ; row ++) {
+        for(int plane = 0; plane < 3; plane++)  {
+                value = 0;
+                int i1 = input->color[col][plane][row]* data[0];
+                int i2 = input->color[col][plane][row+1]* data[3];
+                i1 = i1 + input->color[col+1][plane][row  ]* data[1];
+                i2 = i2 + input->color[col+1][plane][row+1];
+                int i3 = i3 + input->color[col+1][plane][row+2];
+                i2 = i2 + input->color[col+2][plane][row+1];
+                i3 = i3 + input->color[col+2][plane][row+2]* data[8];
+                value = value + i1 + i2 + i3;
+                value = value>>divisor;
+                value = (value < 0)? 0 : value;
+                value = (value > 255)? 255 : value;
+                output -> color[col+1][plane][row + 1] = value;
+         }
+       }
+     }
 
-	//if ( value  > 255 ) { value = 255; }
-	value = (value < 0)? 0 : value;
-//	value = value & ~(value >> 0x1f);
-	value = (value > 255)? 255 : value;
-	//*/
-	output -> color[colc+1][plane][rowc + 1] = value;
-	 }	
-	}
-      }
-    }
-  }
+	break;
+   default:
+     for(col = 0; col < w; col++) {
+     for(row = 0; row < h ; row ++) {
+        for(int plane = 0; plane < 3; plane++)  {
+                value = 0;
+                int i1 = input->color[col][plane][row]* data[0];
+                int i2 = input->color[col][plane][row+1]* data[3];
+                int i3 = input->color[col][plane][row+2]* data[6];
+                i1 = i1 + input->color[col+1][plane][row  ]* data[1];
+                i2 = i2 + input->color[col+1][plane][row+1]* data[4];
+                i3 = i3 + input->color[col+1][plane][row+2]* data[7];
+                i1 = i1 + input->color[col+2][plane][row ]* data[2];
+                i2 = i2 + input->color[col+2][plane][row+1]* data[5];
+                i3 = i3 + input->color[col+2][plane][row+2]* data[8];
+                value = value + i1 + i2 + i3;
+                value = value>>divisor;
+                value = (value < 0)? 0 : value;
+                value = (value > 255)? 255 : value;
+                output -> color[col+1][plane][row + 1] = value;
+         }
+       }
+     }
 
-  for(int coll = col; coll < w; coll ++) {
-    for(int rowl = row; rowl < h ; rowl ++) {
-      for(int plane = 0; plane < 3; plane++) {
-        value = 0;
-        int i1 = input->color[coll][plane][rowl ]* data[0];
-        int i2 = input->color[coll][plane][rowl+1]* data[3];
-        int i3 = input->color[coll][plane][rowl+2]* data[6];
-
-        i1 = i1 + input->color[coll+1][plane][rowl  ]* data[1];
-        i2 = i2 + input->color[coll+1][plane][rowl+1]* data[4];
-        i3 = i3 + input->color[coll+1][plane][rowl+2]* data[7];
-        i1 = i1 + input->color[coll+2][plane][rowl ]* data[2];
-        i2 = i2 + input->color[coll+2][plane][rowl+1]* data[5];
-        i3 = i3 + input->color[coll+2][plane][rowl+2]* data[8];
-
-        value = value + i1 + i2 + i3;
-        value = value>>divisor;
-
-        if ( value < 0) { value = 0; }
-
-        if ( value  > 255 ) { value = 255; }
-        //value = (value < 0)? 0 : value;
-//      value = value & ~(value >> 0x1f);
-        //value = (value > 255)? 255 : value;
-        //*/
-        output -> color[coll+1][plane][rowl + 1] = value;
-
-        }
-      }
+    break;
+//end switch
   }
 
   cycStop = rdtscll();

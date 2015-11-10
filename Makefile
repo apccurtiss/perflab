@@ -2,7 +2,7 @@
 ##
 
 CXX	=g++
-CXXFLAGS=  -static -O2
+CXXFLAGS= -g -Ofast -m64 -ftree-vectorize -msse4
 
 goals: judge
 	echo "Done"
