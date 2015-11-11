@@ -110,12 +110,6 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
       for(int row = 0; row < h ; row++) {
 
 	value = 0;
-	/*for (int j = 0; j < size; j++) {
-	  for (int i = 0; i < size; i++) {
-	    value = value + input->color[col + j][plane][row + i]
-	      * data[i * dim + j];
-	  }
-	}*/
 	int i1 = 0;
 	int i2 = 0;
 	int i3 = 0;
