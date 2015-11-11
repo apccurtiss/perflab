@@ -2,7 +2,7 @@
 ##
 
 CXX	=g++
-CXXFLAGS= -m32 -static
+CXXFLAGS= -g -Ofast -m64 -ftree-vectorize -msse4
 
 goals: judge
 	echo "Done"
@@ -18,7 +18,7 @@ IMAGES = blocks-small.bmp
 TRIALS = 1 2 
 
 test: filter
-	-./Judge -p filter -n 2 -i blocks-small.bmp
+	-./Judge -p filter -n 1 -i blocks-small.bmp
 	-python compare.py
 perf:
 	-scp -q * alcu5535@perf-02.cs.colorado.edu:perflab
