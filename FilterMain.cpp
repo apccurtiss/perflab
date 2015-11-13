@@ -105,31 +105,70 @@ applyFilter(struct Filter *filter, cs1300bmp *input, cs1300bmp *output)
 		{filter -> data[3], filter -> data[4], filter -> data[5]},
 		{filter -> data[6], filter -> data[7], filter -> data[8]}};
    
+#define BLOCK_SIZE 32
+#define MIN(x,y) ((x < y)? x : y)
+for (int colBlock = 1; colBlock < width; colBlock = colBlock + BLOCK_SIZE) {
+for (int rowBlock = 1; rowBlock < height; rowBlock = rowBlock + BLOCK_SIZE) {
+  int rowEnd = MIN(rowBlock + BLOCK_SIZE, height);
+  int colEnd = MIN(colBlock + BLOCK_SIZE, width);
+  for(int col = colBlock; col < colEnd; col = col + 1) {	
+    for(int row = rowBlock; row < rowEnd; row = row + 1) {
+       for(int color = 0; color < 3; color = color + 1) {
 
-  for(int col = 1; col < width; col = col + 1) {
-   for(int plane = 0; plane < 3; plane++) {
-    for(int row = 1; row < height; row = row + 1) {
 
-
-	int a = input -> color[col-1][plane][row-1] * data[0][0];
-	a += input -> color[col-1][plane][row] * data[1][0];
-	a += input -> color[col-1][plane][row+1] * data[2][0];
-	int b = input -> color[col][plane][row-1] * data[0][1];
-	b += input -> color[col][plane][row] * data[1][1];
-	b += input -> color[col][plane][row+1] * data[2][1];
-	int c = input -> color[col+1][plane][row-1] * data[0][2];
-	c += input -> color[col+1][plane][row] * data[1][2];
-	c += input -> color[col+1][plane][row+1] * data[2][2];
+        int a = input -> color[col-1][row-1][color] * data[0][0];
+        a += input -> color[col-1][row][color] * data[1][0];
+        a += input -> color[col-1][row+1][color] * data[2][0];
+        int b = input -> color[col][row-1][color] * data[0][1];
+        b += input -> color[col][row][color] * data[1][1]; 
+        b += input -> color[col][row+1][color] * data[2][1];
+	int c = input -> color[col+1][row-1][color] * data[0][2];
+	c += input -> color[col+1][row][color] * data[1][2];
+	c += input -> color[col+1][row+1][color] * data[2][2];
 	
 	int d = a + b + c;
 	if(divisor==16)
 	  d = d >> 4;
 		
-	output -> color[col][plane][row] = d<0?0:d>255?255:d;
+	output -> color[col][row][color] = d<0?0:d>255?255:d;
+	
+	/*
+	a = input -> color[col-1][row-1][1] * data[0][0];
+	a += input -> color[col-1][row][1] * data[1][0];
+	a += input -> color[col-1][row+1][1] * data[2][0];
+        b = input -> color[col][row-1][1] * data[0][1];
+        b += input -> color[col][row][1] * data[1][1]; 
+        b += input -> color[col][row+1][1] * data[2][1];
+	c = input -> color[col+1][row-1][1] * data[0][2];
+	c += input -> color[col+1][row][1] * data[1][2];
+	c += input -> color[col+1][row+1][1] * data[2][2];
+	
+	d = a + b + c;
+	if(divisor==16)
+	  d = d >> 4;
+		
+	output -> color[col][row][1] = d<0?0:d>255?255:d;
+
+	a = input -> color[col-1][row-1][2] * data[0][0];
+	a += input -> color[col-1][row][2] * data[1][0];
+	a += input -> color[col-1][row+1][2] * data[2][0];
+        b = input -> color[col][row-1][2] * data[0][1];
+        b += input -> color[col][row][2] * data[1][1]; 
+        b += input -> color[col][row+1][2] * data[2][1];
+	c = input -> color[col+1][row-1][2] * data[0][2];
+	c += input -> color[col+1][row][2] * data[1][2];
+	c += input -> color[col+1][row+1][2] * data[2][2];
+	
+	d = a + b + c;
+	if(divisor==16)
+	  d = d >> 4;
+		
+	output -> color[col][row][2] = d<0?0:d>255?255:d;
+	*/
       }
     }
   }
-
+}}
   cycStop = rdtscll();
   double diff = cycStop - cycStart;
   double diffPerPixel = diff / (output -> width * output -> height);
